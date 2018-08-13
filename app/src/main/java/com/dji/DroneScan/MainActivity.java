@@ -13,6 +13,9 @@ import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -23,6 +26,7 @@ import dji.common.error.DJIError;
 import dji.common.error.DJISDKError;
 import dji.sdk.base.BaseComponent;
 import dji.sdk.base.BaseProduct;
+import dji.sdk.products.Aircraft;
 import dji.sdk.sdkmanager.DJISDKManager;
 
 public class MainActivity extends AppCompatActivity {
@@ -31,6 +35,11 @@ public class MainActivity extends AppCompatActivity {
     public static final String FLAG_CONNECTION_CHANGE = "dji_sdk_connection_change";
     private static BaseProduct mProduct;
     private Handler mHandler;
+    private Button btnStart;
+    private TextView droneName;
+    private String droneModelName;
+
+
 
     private static final String[] REQUIRED_PERMISSION_LIST = new String[]{
             Manifest.permission.VIBRATE,
@@ -55,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+
         // When the compile and target version is higher than 22, please request the following permission at runtime to ensure the SDK works well.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             checkAndRequestPermissions();
@@ -62,10 +72,24 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
+        // Find elements of the layout
+        droneName = findViewById(R.id.droneName);
+        btnStart = findViewById(R.id.btnStart);
+
         //Initialize DJI SDK Manager
         mHandler = new Handler(Looper.getMainLooper());
 
+
+        btnStart.setEnabled(false);
+        btnStart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent startIntent = new Intent(getApplicationContext(), ControllerActivity.class);
+                startActivity(startIntent);
+            }
+        });
     }
+
 
     /**
      * Checks if there is any missing permissions, and
@@ -125,6 +149,7 @@ public class MainActivity extends AppCompatActivity {
                         public void onRegister(DJIError djiError) {
                             if (djiError == DJISDKError.REGISTRATION_SUCCESS) {
                                 showToast("Register Success");
+
                                 DJISDKManager.getInstance().startConnectionToProduct();
                             } else {
                                 showToast("Register sdk fails, please check the bundle id and network connection!");
@@ -137,15 +162,34 @@ public class MainActivity extends AppCompatActivity {
                             Log.d(TAG, "onProductDisconnect");
                             showToast("Product Disconnected");
                             notifyStatusChange();
-
+                            Intent startIntent = new Intent(getApplicationContext(), MainActivity.class);
+                            startActivity(startIntent);
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    droneName.setText("None");
+                                }
+                            });
+                            btnStart.setEnabled(false);
                         }
+
                         @Override
                         public void onProductConnect(BaseProduct baseProduct) {
                             Log.d(TAG, String.format("onProductConnect newProduct:%s", baseProduct));
                             showToast("Product Connected");
-                            notifyStatusChange();
+                            btnStart.setEnabled(true);
 
+                            // Set name of connected drone
+                            droneModelName = "" + new Aircraft(null).getModel().getDisplayName();
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    droneName.setText(droneModelName);
+                                }
+                            });
+                            notifyStatusChange();
                         }
+
                         @Override
                         public void onComponentChange(BaseProduct.ComponentKey componentKey, BaseComponent oldComponent,
                                                       BaseComponent newComponent) {
