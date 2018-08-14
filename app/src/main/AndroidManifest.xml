@@ -57,7 +57,7 @@
                 android:resource="@xml/accessory_filter" />
         </activity>
 
-        <service android:name="dji.sdk.sdkmanager.DJIGlobalService"></service>
+        <service android:name="dji.sdk.sdkmanager.DJIGlobalService" />
         <!-- DJI SDK -->
 
         <activity
@@ -70,7 +70,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ControllerActivity" android:screenOrientation="landscape"></activity>
+        <activity
+            android:name=".ControllerActivity"
+            android:screenOrientation="landscape"/>
+        <activity android:name=".AdvansedControllerTest"></activity>
     </application>
 
 </manifest>
