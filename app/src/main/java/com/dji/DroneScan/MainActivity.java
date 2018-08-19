@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String FLAG_CONNECTION_CHANGE = "dji_sdk_connection_change";
     private static BaseProduct mProduct;
     private Handler mHandler;
-    private Button btnStart;
+    private Button btnStart, btnAdvanced;
     private TextView droneName;
     private String droneModelName;
 
@@ -75,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
         // Find elements of the layout
         droneName = findViewById(R.id.droneName);
         btnStart = findViewById(R.id.btnStart);
+        btnAdvanced = findViewById(R.id.btnAdvanced);
 
         //Initialize DJI SDK Manager
         mHandler = new Handler(Looper.getMainLooper());
@@ -85,6 +86,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent startIntent = new Intent(getApplicationContext(), ControllerActivity.class);
+                startActivity(startIntent);
+            }
+        });
+
+        btnAdvanced.setEnabled(false);
+        btnAdvanced.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent startIntent = new Intent(getApplicationContext(), AdvancedControllerTest.class);
                 startActivity(startIntent);
             }
         });
@@ -171,6 +181,7 @@ public class MainActivity extends AppCompatActivity {
                                 }
                             });
                             btnStart.setEnabled(false);
+                            btnAdvanced.setEnabled(false);
                         }
 
                         @Override
@@ -178,6 +189,7 @@ public class MainActivity extends AppCompatActivity {
                             Log.d(TAG, String.format("onProductConnect newProduct:%s", baseProduct));
                             showToast("Product Connected");
                             btnStart.setEnabled(true);
+                            btnAdvanced.setEnabled(true);
 
                             // Set name of connected drone
                             droneModelName = "" + new Aircraft(null).getModel().getDisplayName();

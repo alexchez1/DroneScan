@@ -73,7 +73,7 @@
         <activity
             android:name=".ControllerActivity"
             android:screenOrientation="landscape"/>
-        <activity android:name=".AdvansedControllerTest"></activity>
+        <activity android:name=".AdvancedControllerTest" android:screenOrientation="landscape"></activity>
     </application>
 
 </manifest>

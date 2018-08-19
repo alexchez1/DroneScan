@@ -10,13 +10,13 @@ import android.view.View;
 import android.widget.Button;
 
 import dji.common.flightcontroller.virtualstick.FlightControlData;
+import dji.common.flightcontroller.virtualstick.FlightCoordinateSystem;
 import dji.common.flightcontroller.virtualstick.RollPitchControlMode;
 import dji.common.flightcontroller.virtualstick.VerticalControlMode;
 import dji.sdk.flightcontroller.FlightController;
 import dji.sdk.products.Aircraft;
 
 public class ControllerActivity extends AppCompatActivity {
-    private Aircraft aircraft;
     private FlightController flightController;
 
     @SuppressLint("ClickableViewAccessibility")
@@ -26,7 +26,7 @@ public class ControllerActivity extends AppCompatActivity {
         setContentView(R.layout.activity_controlle_activity);
 
         // Get instance of connected aircraft
-        aircraft = new Aircraft(null);
+        Aircraft aircraft = new Aircraft(null);
 
         // Get flight controller
         flightController = aircraft.getFlightController();
@@ -35,6 +35,7 @@ public class ControllerActivity extends AppCompatActivity {
         flightController.setVirtualStickModeEnabled(true, null);
         flightController.setRollPitchControlMode(RollPitchControlMode.VELOCITY);
         flightController.setVerticalControlMode(VerticalControlMode.VELOCITY);
+        flightController.setRollPitchCoordinateSystem(FlightCoordinateSystem.BODY);
 
         // Find land button and set LAND action on click
         Button btnLand = findViewById(R.id.btnLand);
@@ -80,7 +81,7 @@ public class ControllerActivity extends AppCompatActivity {
             Runnable mAction = new Runnable() {
                 @Override
                 public void run() {
-                    flightController.sendVirtualStickFlightControlData(new FlightControlData(-10, 0, 0, 0), null);
+                    flightController.sendVirtualStickFlightControlData(new FlightControlData(-1, 0, 0, 0), null);
                     mHandler.postDelayed(this, 100);
                 }
             };
@@ -111,7 +112,7 @@ public class ControllerActivity extends AppCompatActivity {
             Runnable mAction = new Runnable() {
                 @Override
                 public void run() {
-                    flightController.sendVirtualStickFlightControlData(new FlightControlData(10, 0, 0, 0), null);
+                    flightController.sendVirtualStickFlightControlData(new FlightControlData(1, 0, 0, 0), null);
                     mHandler.postDelayed(this, 100);
                 }
             };
@@ -143,7 +144,7 @@ public class ControllerActivity extends AppCompatActivity {
             Runnable mAction = new Runnable() {
                 @Override
                 public void run() {
-                    flightController.sendVirtualStickFlightControlData(new FlightControlData(0, 0, 0, 4), null);
+                    flightController.sendVirtualStickFlightControlData(new FlightControlData(0, 0, 0, 1), null);
                     mHandler.postDelayed(this, 100);
                 }
             };
@@ -175,7 +176,7 @@ public class ControllerActivity extends AppCompatActivity {
             Runnable mAction = new Runnable() {
                 @Override
                 public void run() {
-                    flightController.sendVirtualStickFlightControlData(new FlightControlData(0, 0, 0, -4), null);
+                    flightController.sendVirtualStickFlightControlData(new FlightControlData(0, 0, 0, -1), null);
                     mHandler.postDelayed(this, 100);
                 }
             };
@@ -191,7 +192,7 @@ public class ControllerActivity extends AppCompatActivity {
                 new CountDownTimer(2100, 100) {
                     @Override
                     public void onTick(long l) {
-                        flightController.sendVirtualStickFlightControlData(new FlightControlData(0, 0, 0, 4), null);
+                        flightController.sendVirtualStickFlightControlData(new FlightControlData(0, 0, 0, 1), null);
                     }
 
                     @Override
@@ -209,10 +210,10 @@ public class ControllerActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                new CountDownTimer(5100, 100) {
+                new CountDownTimer(1100, 100) {
                     @Override
                     public void onTick(long l) {
-                        flightController.sendVirtualStickFlightControlData(new FlightControlData(2, 0, 0, 0), null);
+                        flightController.sendVirtualStickFlightControlData(new FlightControlData((float)0.5, 0, 0, 0), null);
                     }
 
                     @Override
@@ -230,10 +231,10 @@ public class ControllerActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                new CountDownTimer(6100, 100) {
+                new CountDownTimer(2100, 100) {
                     @Override
                     public void onTick(long l) {
-                        flightController.sendVirtualStickFlightControlData(new FlightControlData(2, 0, 0, 0), null);
+                        flightController.sendVirtualStickFlightControlData(new FlightControlData((float)0.5, 0, 0, 0), null);
                     }
 
                     @Override

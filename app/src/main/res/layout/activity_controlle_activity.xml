@@ -106,7 +106,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="52dp"
         android:layout_marginTop="8dp"
-        android:text="Go 6 sec right"
+        android:text="Go 2 sec right"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btn2secRight" />
 
@@ -116,7 +116,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="52dp"
         android:layout_marginTop="12dp"
-        android:text="Go 5 sec right"
+        android:text="Go 1 sec right"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btn2secUp" />
 </android.support.constraint.ConstraintLayout>
