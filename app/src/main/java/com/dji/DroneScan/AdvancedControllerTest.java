@@ -8,11 +8,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.TextureView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import java.text.DecimalFormat;
 
 import dji.common.error.DJIError;
 import dji.common.flightcontroller.ObstacleDetectionSector;
@@ -23,6 +27,7 @@ import dji.common.flightcontroller.virtualstick.RollPitchControlMode;
 import dji.common.flightcontroller.virtualstick.VerticalControlMode;
 import dji.common.flightcontroller.virtualstick.YawControlMode;
 import dji.common.util.CommonCallbacks;
+import dji.sdk.camera.VideoFeeder;
 import dji.sdk.flightcontroller.FlightAssistant;
 import dji.sdk.flightcontroller.FlightController;
 import dji.sdk.products.Aircraft;
@@ -31,6 +36,8 @@ public class AdvancedControllerTest extends AppCompatActivity {
 
     private FlightController flightController;
     private FlightAssistant flightAssistant;
+    protected VideoFeeder.VideoDataCallback mReceivedVideoDataCallBack = null;
+    DecimalFormat df = new DecimalFormat();
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -44,7 +51,7 @@ public class AdvancedControllerTest extends AppCompatActivity {
         flightAssistant = flightController.getFlightAssistant();
 
         // Set advanced Mode enabled
-        flightController.setVirtualStickModeEnabled(true,null);
+        flightController.setVirtualStickModeEnabled(true, null);
         flightController.setVirtualStickAdvancedModeEnabled(true);
 
         // Get all UI elements
@@ -66,12 +73,22 @@ public class AdvancedControllerTest extends AppCompatActivity {
         Button btnF3 = findViewById(R.id.btnF3);
         Button btnF4 = findViewById(R.id.btnF4);
         Button btnF5 = findViewById(R.id.btnF5);
+        TextView valSen1, valSen2, valSen3, valSen4;
+        valSen1 = findViewById(R.id.valSen1);
+        valSen2 = findViewById(R.id.valSen2);
+        valSen3 = findViewById(R.id.valSen3);
+        valSen4 = findViewById(R.id.valSen4);
+        final TextView senArray[] = new TextView[] {valSen1, valSen2, valSen3, valSen4};
+        df.setMaximumFractionDigits(2);
 
         //Aircraft setting
         flightController.setVerticalControlMode(VerticalControlMode.VELOCITY);
+//        flightController.setYawControlMode(YawControlMode.ANGLE);
         flightController.setYawControlMode(YawControlMode.ANGULAR_VELOCITY);
         flightController.setRollPitchControlMode(RollPitchControlMode.VELOCITY);
         flightController.setRollPitchCoordinateSystem(FlightCoordinateSystem.BODY);
+
+        Log.d("AdvancedTest", "" + flightController.getRollPitchCoordinateSystem());
 
         // Take off button
         btnTakeOff.setOnClickListener(new View.OnClickListener() {
@@ -333,10 +350,10 @@ public class AdvancedControllerTest extends AppCompatActivity {
         btnF1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new CountDownTimer(1100, 100) {
+                new CountDownTimer(3100, 100) {
                     @Override
                     public void onTick(long l) {
-                        flightController.sendVirtualStickFlightControlData(new FlightControlData(0, (float)0.5, 0, 0), null);
+                        flightController.sendVirtualStickFlightControlData(new FlightControlData((float) 0.5, 0, 0, 0), null);
                     }
 
                     @Override
@@ -351,10 +368,10 @@ public class AdvancedControllerTest extends AppCompatActivity {
         btnF2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new CountDownTimer(2100, 100) {
+                new CountDownTimer(15100, 100) {
                     @Override
                     public void onTick(long l) {
-                        flightController.sendVirtualStickFlightControlData(new FlightControlData(0, (float)0.5, 0, 0), null);
+                        flightController.sendVirtualStickFlightControlData(new FlightControlData((float)0.5, 0, 0, 0), null);
                     }
 
                     @Override
@@ -369,10 +386,10 @@ public class AdvancedControllerTest extends AppCompatActivity {
         btnF3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new CountDownTimer(3100, 100) {
+                new CountDownTimer(1100, 100) {
                     @Override
                     public void onTick(long l) {
-                        flightController.sendVirtualStickFlightControlData(new FlightControlData(0, (float)0.5, 0, 0), null);
+                        flightController.sendVirtualStickFlightControlData(new FlightControlData(0, 0, 90, 0), null);
                     }
 
                     @Override
@@ -387,10 +404,10 @@ public class AdvancedControllerTest extends AppCompatActivity {
         btnF4.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new CountDownTimer(4100, 100) {
+                new CountDownTimer(2100, 100) {
                     @Override
                     public void onTick(long l) {
-                        flightController.sendVirtualStickFlightControlData(new FlightControlData(0, (float)0.5, 0, 0), null);
+                        flightController.sendVirtualStickFlightControlData(new FlightControlData(0, 0, 90, 0), null);
                     }
 
                     @Override
@@ -405,10 +422,10 @@ public class AdvancedControllerTest extends AppCompatActivity {
         btnF5.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new CountDownTimer(5100, 100) {
+                new CountDownTimer(3100, 100) {
                     @Override
                     public void onTick(long l) {
-                        flightController.sendVirtualStickFlightControlData(new FlightControlData(0, (float)0.5, 0, 0), null);
+                        flightController.sendVirtualStickFlightControlData(new FlightControlData(0, 0, 90, 0), null);
                     }
 
                     @Override
@@ -524,8 +541,7 @@ public class AdvancedControllerTest extends AppCompatActivity {
 
                 for (int i = 0; i < obstacleDetectionSectors.length; i++) {
                     float dist = obstacleDetectionSectors[i].getObstacleDistanceInMeters();
-                    Toast.makeText(getApplicationContext(), "" + dist, Toast.LENGTH_SHORT).show();
-                    Log.d("AdvancedTest", "Sensor " + i + " distance: " + dist);
+                    senArray[i].setText(df.format(dist) + "");
                 }
 //                Toast.makeText(getApplicationContext(),"" + visionDetectionState.getObstacleDistanceInMeters(),Toast.LENGTH_SHORT).show();
 //                Log.d("AdvancedTest", "" + visionDetectionState.getObstacleDistanceInMeters());
@@ -533,5 +549,11 @@ public class AdvancedControllerTest extends AppCompatActivity {
         });
 
 
+    }
+
+    private float get2decimal(float num) {
+        int newNum = (int) num * 100;
+        num = newNum / 100;
+        return num;
     }
 }

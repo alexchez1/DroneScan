@@ -22,22 +22,22 @@
 
         <Button
             android:id="@+id/btnTakeOff"
-            android:layout_width="wrap_content"
+            android:layout_width="70dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Take off" />
 
         <Button
             android:id="@+id/btnLand"
-            android:layout_width="wrap_content"
+            android:layout_width="70dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Land" />
 
         <Switch
             android:id="@+id/switchVisionAssist"
-            android:layout_width="112dp"
-            android:layout_height="28dp"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
             android:layout_marginBottom="8dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
@@ -54,8 +54,8 @@
 
         <Switch
             android:id="@+id/switchCollisionAvoid"
-            android:layout_width="119dp"
-            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
             android:layout_marginBottom="8dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
@@ -160,6 +160,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
+        android:id="@+id/linearLayout3"
         android:layout_width="140dp"
         android:layout_height="235dp"
         android:orientation="vertical"
@@ -172,36 +173,124 @@
             style="@android:style/Widget.Button.Inset"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="1s forward" />
+            android:text="3s right" />
 
         <Button
             android:id="@+id/btnF2"
             style="@android:style/Widget.Button.Inset"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="2s forward" />
+            android:text="15s right" />
 
         <Button
             android:id="@+id/btnF3"
             style="@android:style/Widget.Button.Inset"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="3s forward " />
+            android:text="1s 90deg" />
 
         <Button
             android:id="@+id/btnF4"
             style="@android:style/Widget.Button.Inset"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="4s forward" />
+            android:text="2s 90deg" />
 
         <Button
             android:id="@+id/btnF5"
             style="@android:style/Widget.Button.Inset"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="5s forward" />
+            android:text="3s 90deg" />
 
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/textView6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="48dp"
+        android:text="4sen"
+        android:textStyle="bold"
+        app:layout_constraintStart_toEndOf="@+id/textView9"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView9"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="48dp"
+        android:text="3sen"
+        android:textStyle="bold"
+        app:layout_constraintStart_toEndOf="@+id/textView8"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView8"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="48dp"
+        android:text="2sen"
+        android:textStyle="bold"
+        app:layout_constraintStart_toEndOf="@+id/textView7"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView7"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="267dp"
+        android:layout_marginTop="48dp"
+        android:text="1sen"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/valSen4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="22dp"
+        android:layout_marginTop="8dp"
+        android:text="12.34"
+        android:textSize="10sp"
+        app:layout_constraintStart_toEndOf="@+id/valSen3"
+        app:layout_constraintTop_toBottomOf="@+id/textView6" />
+
+    <TextView
+        android:id="@+id/valSen3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="22dp"
+        android:layout_marginTop="8dp"
+        android:text="12.34"
+        android:textSize="10sp"
+        app:layout_constraintStart_toEndOf="@+id/valSen2"
+        app:layout_constraintTop_toBottomOf="@+id/textView9" />
+
+    <TextView
+        android:id="@+id/valSen2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="8dp"
+        android:text="12.34"
+        android:textSize="10sp"
+        app:layout_constraintStart_toEndOf="@+id/valSen1"
+        app:layout_constraintTop_toBottomOf="@+id/textView8" />
+
+    <TextView
+        android:id="@+id/valSen1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="272dp"
+        android:layout_marginTop="8dp"
+        android:text="12.34"
+        android:textSize="10sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView7" />
 
 </android.support.constraint.ConstraintLayout>
