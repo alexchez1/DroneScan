@@ -1,14 +1,12 @@
 package com.dji.DroneScan;
 
 import android.annotation.SuppressLint;
+import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.util.Log;
 import android.view.MotionEvent;
-import android.view.TextureView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -27,7 +25,6 @@ import dji.common.flightcontroller.virtualstick.RollPitchControlMode;
 import dji.common.flightcontroller.virtualstick.VerticalControlMode;
 import dji.common.flightcontroller.virtualstick.YawControlMode;
 import dji.common.util.CommonCallbacks;
-import dji.sdk.camera.VideoFeeder;
 import dji.sdk.flightcontroller.FlightAssistant;
 import dji.sdk.flightcontroller.FlightController;
 import dji.sdk.products.Aircraft;
@@ -36,7 +33,6 @@ public class AdvancedControllerTest extends AppCompatActivity {
 
     private FlightController flightController;
     private FlightAssistant flightAssistant;
-    protected VideoFeeder.VideoDataCallback mReceivedVideoDataCallBack = null;
     DecimalFormat df = new DecimalFormat();
 
     @SuppressLint("ClickableViewAccessibility")
@@ -78,17 +74,14 @@ public class AdvancedControllerTest extends AppCompatActivity {
         valSen2 = findViewById(R.id.valSen2);
         valSen3 = findViewById(R.id.valSen3);
         valSen4 = findViewById(R.id.valSen4);
-        final TextView senArray[] = new TextView[] {valSen1, valSen2, valSen3, valSen4};
+        final TextView senArray[] = new TextView[]{valSen1, valSen2, valSen3, valSen4};
         df.setMaximumFractionDigits(2);
 
         //Aircraft setting
         flightController.setVerticalControlMode(VerticalControlMode.VELOCITY);
-//        flightController.setYawControlMode(YawControlMode.ANGLE);
         flightController.setYawControlMode(YawControlMode.ANGULAR_VELOCITY);
         flightController.setRollPitchControlMode(RollPitchControlMode.VELOCITY);
         flightController.setRollPitchCoordinateSystem(FlightCoordinateSystem.BODY);
-
-        Log.d("AdvancedTest", "" + flightController.getRollPitchCoordinateSystem());
 
         // Take off button
         btnTakeOff.setOnClickListener(new View.OnClickListener() {
@@ -350,17 +343,8 @@ public class AdvancedControllerTest extends AppCompatActivity {
         btnF1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new CountDownTimer(3100, 100) {
-                    @Override
-                    public void onTick(long l) {
-                        flightController.sendVirtualStickFlightControlData(new FlightControlData((float) 0.5, 0, 0, 0), null);
-                    }
-
-                    @Override
-                    public void onFinish() {
-                        flightController.sendVirtualStickFlightControlData(new FlightControlData(0, 0, 0, 0), null);
-                    }
-                }.start();
+                String[] arr = new String[]{"10f", "5l", "180yz", "10b"};
+                new MNavigationHelper(arr, 2f);
             }
         });
 
@@ -371,7 +355,7 @@ public class AdvancedControllerTest extends AppCompatActivity {
                 new CountDownTimer(15100, 100) {
                     @Override
                     public void onTick(long l) {
-                        flightController.sendVirtualStickFlightControlData(new FlightControlData((float)0.5, 0, 0, 0), null);
+                        flightController.sendVirtualStickFlightControlData(new FlightControlData((float) 0.5, 0, 0, 0), null);
                     }
 
                     @Override
@@ -543,17 +527,8 @@ public class AdvancedControllerTest extends AppCompatActivity {
                     float dist = obstacleDetectionSectors[i].getObstacleDistanceInMeters();
                     senArray[i].setText(df.format(dist) + "");
                 }
-//                Toast.makeText(getApplicationContext(),"" + visionDetectionState.getObstacleDistanceInMeters(),Toast.LENGTH_SHORT).show();
-//                Log.d("AdvancedTest", "" + visionDetectionState.getObstacleDistanceInMeters());
             }
         });
 
-
-    }
-
-    private float get2decimal(float num) {
-        int newNum = (int) num * 100;
-        num = newNum / 100;
-        return num;
     }
 }

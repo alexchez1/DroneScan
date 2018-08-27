@@ -173,7 +173,7 @@
             style="@android:style/Widget.Button.Inset"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="3s right" />
+            android:text="Fly" />
 
         <Button
             android:id="@+id/btnF2"
