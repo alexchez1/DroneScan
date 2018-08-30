@@ -2,6 +2,7 @@ package com.dji.DroneScan;
 
 import android.os.CountDownTimer;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import java.util.Arrays;
 import java.util.Stack;
@@ -28,9 +29,6 @@ class NavigationExecutor {
     private Stack<String> startStack = new Stack<>();
     private Stack<Float> flightMoves = new Stack<>();
     private Stack<String> commands = new Stack<>();
-
-    NavigationExecutor() {
-    }
 
     NavigationExecutor(String[] moves, float speed) {
 
@@ -61,8 +59,6 @@ class NavigationExecutor {
 
         this.startStack.addAll(Arrays.asList(moves));
 
-        // takeoff, alignment, find corner, scan near rack, go back and find corner, land
-
         while (!startStack.empty()) {
             data = startStack.pop();
 
@@ -86,6 +82,8 @@ class NavigationExecutor {
                 command = 9;
             } else if (getPattern("[a][l][i][g][n]", data)) {
                 command = 10;
+            } else if (getPattern("[s][c][a][n]", data)) {
+                command = 11;
             }
 
             createFlightArray(command, speed);
@@ -98,15 +96,18 @@ class NavigationExecutor {
 
     public void runCommands() {
 
-//        Log.d("TestHelper", "FlightMoves: " + flightMoves + ". Commands: " + commands);
+//        Log.d("TestHelper", "Running command: " + commands.peek() + " commands array: " + commands);
         if (commands.empty()) {
             return;
         } else if (commands.peek().equals("flight")) {
+            Log.d("TestHelper", "runCommands: " + flightMoves);
             flight();
         } else if (commands.peek().equals("takeoff")) {
             takeOff();
         } else if (commands.peek().equals("align")) {
             align();
+        } else if (commands.peek().equals("scan")) {
+            scan();
         }
     }
 
@@ -191,6 +192,8 @@ class NavigationExecutor {
             this.commands.push("takeoff");
         } else if (command == 10) {
             this.commands.push("align");
+        } else if (command == 11) {
+            this.commands.push("scan");
         }
     }
 
@@ -204,6 +207,7 @@ class NavigationExecutor {
         v2 = flightMoves.pop();
         v3 = flightMoves.pop();
         v4 = flightMoves.pop();
+
         new CountDownTimer(millisec, 100) {
             @Override
             public void onTick(long l) {
@@ -255,7 +259,7 @@ class NavigationExecutor {
                 // Get first and last sensor values
                 float sen1 = od[0].getObstacleDistanceInMeters();
                 float sen2 = od[3].getObstacleDistanceInMeters();
-                int difference = 0;
+                int difference;
 
                 // Calculate difference between values
                 if (sen1 > sen2) {
@@ -267,19 +271,18 @@ class NavigationExecutor {
                 // Yaw right or left if difference is too big or give control back to main function
                 if (difference > err) {
                     if (sen1 > sen2) {
-                        flightController.sendVirtualStickFlightControlData(new FlightControlData(0, 0, 5, 0), null);
+                        flightController.sendVirtualStickFlightControlData(new FlightControlData(0, 0, 3, 0), null);
                     } else {
-                        flightController.sendVirtualStickFlightControlData(new FlightControlData(0, 0, -5, 0), null);
+                        flightController.sendVirtualStickFlightControlData(new FlightControlData(0, 0, -3, 0), null);
                     }
                 } else {
                     flightAssistant.setVisionDetectionStateUpdatedCallback(new VisionDetectionState.Callback() {
                         @Override
-                        public void onUpdate(@NonNull VisionDetectionState visionDetectionState) {}
+                        public void onUpdate(@NonNull VisionDetectionState visionDetectionState) {
+                        }
                     });
                     runCommands();
                 }
-
-//                Log.d("TestHelper", "Sensor 1: " + od[0].getObstacleDistanceInMeters() + " sensor 2: " + od[1].getObstacleDistanceInMeters() + " sensor 3: " + od[2].getObstacleDistanceInMeters() + " sensor 4: " + od[3].getObstacleDistanceInMeters());
             }
         });
     }
