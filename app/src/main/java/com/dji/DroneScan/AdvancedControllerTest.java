@@ -343,8 +343,11 @@ public class AdvancedControllerTest extends AppCompatActivity {
         btnF1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String[] arr = new String[]{"takeoff", "align", "10forward"};
-                new NavigationExecutor(arr, 2f);
+
+                final String[] arr = new String[]{"takeoff", "0.5up", "13forward", "7left", "190yawR", "align"};
+                NavigationExecutor ne = new NavigationExecutor(arr, 1f);
+                ne.runCommands();
+
             }
         });
 

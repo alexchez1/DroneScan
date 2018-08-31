@@ -89,8 +89,7 @@ class NavigationExecutor {
             createFlightArray(command, speed);
             pushFlightCodeInArray(data, speed, command);
         }
-
-        runCommands();
+        Log.d("TestHelper", "Flight moves: " + flightMoves);
     }
 
 
@@ -100,7 +99,6 @@ class NavigationExecutor {
         if (commands.empty()) {
             return;
         } else if (commands.peek().equals("flight")) {
-            Log.d("TestHelper", "runCommands: " + flightMoves);
             flight();
         } else if (commands.peek().equals("takeoff")) {
             takeOff();
@@ -113,7 +111,7 @@ class NavigationExecutor {
 
     private void createFlightArray(int direction, float speed) {
         float yawSpeed = 45f;
-        float upDownSpeed = 1f;
+        float upDownSpeed = 0.5f;
 
         switch (direction) {
             case 1:
@@ -170,22 +168,36 @@ class NavigationExecutor {
     private void pushFlightCodeInArray(String data, float speed, int command) {
         float meters = 0;
         float millisec;
+        float upDownSpeed = 0.5f;
         float yawSpeed = 45f;
 
         if (command <= 8) {
-            Pattern p = Pattern.compile("-?\\d+");
+            Pattern p = Pattern.compile("[0-9]*\\.?[0-9]+");
             Matcher m = p.matcher(data);
-            while (m.find()) {
+            if (m.find()) {
                 meters = Float.parseFloat(m.group());
+            } else {
+                p = Pattern.compile("\\d*");
+                m = p.matcher(data);
+                if (m.find()) {
+                    meters = Float.parseFloat(m.group());
+                }
             }
+
+
+            Log.d("TestHelper", "Meters: " + meters);
+
 
             millisec = (meters / speed) * 1000 + 100;
 
-            if (command != 5 && command != 6) {
-                this.flightMoves.push(millisec);
-            } else {
+            if (command == 5 || command == 6) {
                 this.flightMoves.push((meters / yawSpeed) * 1000 + 100);
+            } else if (command == 7 || command == 8) {
+                this.flightMoves.push((meters / upDownSpeed) * 1000 + 100);
+            } else {
+                this.flightMoves.push(millisec);
             }
+
 
             this.commands.push("flight");
         } else if (command == 9) {
@@ -208,18 +220,28 @@ class NavigationExecutor {
         v3 = flightMoves.pop();
         v4 = flightMoves.pop();
 
-        new CountDownTimer(millisec, 100) {
-            @Override
-            public void onTick(long l) {
-                flightController.sendVirtualStickFlightControlData(new FlightControlData(v1, v2, v3, v4), null);
-            }
+//        Log.d("TestHelper", "Before timer. millisec: " + millisec + " velocity " + v1 + " " + v2 + " " + v3 + " " + v4);
 
-            @Override
-            public void onFinish() {
-                flightController.sendVirtualStickFlightControlData(new FlightControlData(0, 0, 0, 0), null);
-                runCommands();
-            }
-        }.start();
+        try {
+            new CountDownTimer(millisec, 100) {
+                @Override
+                public void onTick(long l) {
+//                Log.d("TestHelper", "Works here");
+                    flightController.sendVirtualStickFlightControlData(new FlightControlData(v1, v2, v3, v4), null);
+                }
+
+                @Override
+                public void onFinish() {
+                    flightController.sendVirtualStickFlightControlData(new FlightControlData(0, 0, 0, 0), null);
+                    runCommands();
+                }
+            }.start();
+        } catch (Exception e) {
+            Log.d("TestHelper", "Exception " + e.getMessage());
+        }
+
+//        Log.d("TestHelper", "Skip timer");
+
     }
 
     private void takeOff() {
