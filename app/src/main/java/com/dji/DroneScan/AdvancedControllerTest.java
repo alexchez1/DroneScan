@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
@@ -344,9 +345,8 @@ public class AdvancedControllerTest extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                final String[] arr = new String[]{"takeoff", "0.5up", "13forward", "7left", "190yawR", "align"};
-                NavigationExecutor ne = new NavigationExecutor(arr, 1f);
-                ne.runCommands();
+                String[] arr = new String[]{"takeoff", "cornerL", "10right"};
+                new Handler(Looper.getMainLooper()).post(new NavigationExecutor(arr, 2f));
 
             }
         });
