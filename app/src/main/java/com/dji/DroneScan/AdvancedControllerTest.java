@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
@@ -16,8 +17,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.text.DecimalFormat;
+import java.util.List;
 
 import dji.common.error.DJIError;
+import dji.common.flightcontroller.FlightControllerState;
 import dji.common.flightcontroller.ObstacleDetectionSector;
 import dji.common.flightcontroller.VisionDetectionState;
 import dji.common.flightcontroller.virtualstick.FlightControlData;
@@ -26,9 +29,11 @@ import dji.common.flightcontroller.virtualstick.RollPitchControlMode;
 import dji.common.flightcontroller.virtualstick.VerticalControlMode;
 import dji.common.flightcontroller.virtualstick.YawControlMode;
 import dji.common.util.CommonCallbacks;
+import dji.sdk.base.DJIDiagnostics;
 import dji.sdk.flightcontroller.FlightAssistant;
 import dji.sdk.flightcontroller.FlightController;
 import dji.sdk.products.Aircraft;
+import dji.sdk.products.HandHeld;
 
 public class AdvancedControllerTest extends AppCompatActivity {
 
@@ -43,9 +48,20 @@ public class AdvancedControllerTest extends AppCompatActivity {
         setContentView(R.layout.activity_advanced_controller_test);
 
         // Get all instances
+        HandHeld handHeld = new HandHeld(null);
         Aircraft aircraft = new Aircraft(null);
         flightController = aircraft.getFlightController();
         flightAssistant = flightController.getFlightAssistant();
+
+        handHeld.setDiagnosticsInformationCallback(new DJIDiagnostics.DiagnosticsInformationCallback() {
+            @Override
+            public void onUpdate(List<DJIDiagnostics> list) {
+                for (int i = 0; i < list.size(); i++) {
+                    Log.d("TestHelper", "Error: " + list.get(i).getReason() + "\n Solution: " + list.get(i).getSolution());
+                }
+                list.clear();
+            }
+        });
 
         // Set advanced Mode enabled
         flightController.setVirtualStickModeEnabled(true, null);
@@ -70,11 +86,12 @@ public class AdvancedControllerTest extends AppCompatActivity {
         Button btnF3 = findViewById(R.id.btnF3);
         Button btnF4 = findViewById(R.id.btnF4);
         Button btnF5 = findViewById(R.id.btnF5);
-        TextView valSen1, valSen2, valSen3, valSen4;
+        final TextView valSen1, valSen2, valSen3, valSen4, valHeight;
         valSen1 = findViewById(R.id.valSen1);
         valSen2 = findViewById(R.id.valSen2);
         valSen3 = findViewById(R.id.valSen3);
         valSen4 = findViewById(R.id.valSen4);
+        valHeight = findViewById(R.id.valHeight);
         final TextView senArray[] = new TextView[]{valSen1, valSen2, valSen3, valSen4};
         df.setMaximumFractionDigits(2);
 
@@ -345,8 +362,10 @@ public class AdvancedControllerTest extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                String[] arr = new String[]{"takeoff", "cornerL", "10right"};
-                new Handler(Looper.getMainLooper()).post(new NavigationExecutor(arr, 2f));
+                String[] arr = new String[]{"takeoff", "1forward", "align", "cornerL", "1right", "height1", "scanL2width1initialHeight1.6maxHeight"};
+                //"scanL1width2initialHeight2.5maxHeight"
+                new Handler(Looper.getMainLooper()).post(new NavigationExecutor(arr, 1f));
+//                new NavigationExecutor(arr, 1f);
 
             }
         });
@@ -530,6 +549,20 @@ public class AdvancedControllerTest extends AppCompatActivity {
                     float dist = obstacleDetectionSectors[i].getObstacleDistanceInMeters();
                     senArray[i].setText(df.format(dist) + "");
                 }
+            }
+        });
+
+
+        flightController.setStateCallback(new FlightControllerState.Callback() {
+            @Override
+            public void onUpdate(@NonNull FlightControllerState flightControllerState) {
+                final FlightControllerState fks = flightControllerState;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        valHeight.setText(fks.getUltrasonicHeightInMeters() + "");
+                    }
+                });
             }
         });
 

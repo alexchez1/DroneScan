@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String FLAG_CONNECTION_CHANGE = "dji_sdk_connection_change";
     private static BaseProduct mProduct;
     private Handler mHandler;
-    private Button btnStart, btnAdvanced;
+    private Button btnAdvanced;
     private TextView droneName;
     private String droneModelName;
 
@@ -72,21 +72,11 @@ public class MainActivity extends AppCompatActivity {
 
         // Find elements of the layout
         droneName = findViewById(R.id.droneName);
-        btnStart = findViewById(R.id.btnStart);
         btnAdvanced = findViewById(R.id.btnAdvanced);
 
         //Initialize DJI SDK Manager
         mHandler = new Handler(Looper.getMainLooper());
 
-
-        btnStart.setEnabled(false);
-        btnStart.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent startIntent = new Intent(getApplicationContext(), ControllerActivity.class);
-                startActivity(startIntent);
-            }
-        });
 
         btnAdvanced.setEnabled(false);
         btnAdvanced.setOnClickListener(new View.OnClickListener() {
@@ -147,6 +137,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startSDKRegistration() {
+        /* TODO: delete registration after it is done once */
         if (isRegistrationInProgress.compareAndSet(false, true)) {
             AsyncTask.execute(new Runnable() {
                 @Override
@@ -178,7 +169,6 @@ public class MainActivity extends AppCompatActivity {
                                     droneName.setText("None");
                                 }
                             });
-                            btnStart.setEnabled(false);
                             btnAdvanced.setEnabled(false);
                         }
 
@@ -186,7 +176,6 @@ public class MainActivity extends AppCompatActivity {
                         public void onProductConnect(BaseProduct baseProduct) {
                             Log.d(TAG, String.format("onProductConnect newProduct:%s", baseProduct));
                             showToast("Product Connected");
-                            btnStart.setEnabled(true);
                             btnAdvanced.setEnabled(true);
 
                             // Set name of connected drone

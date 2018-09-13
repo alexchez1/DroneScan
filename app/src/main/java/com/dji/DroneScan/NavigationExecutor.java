@@ -12,6 +12,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import dji.common.error.DJIError;
+import dji.common.flightcontroller.FlightControllerState;
 import dji.common.flightcontroller.ObstacleDetectionSector;
 import dji.common.flightcontroller.VisionDetectionState;
 import dji.common.flightcontroller.virtualstick.FlightControlData;
@@ -32,7 +33,7 @@ class NavigationExecutor implements Runnable {
     static private Stack<Float> flightMoves = new Stack<>();
     static private Stack<String> commands = new Stack<>();
 
-    private float upDownSpeed = 0.5f;
+    private float upDownSpeed = 0.2f;
     private float yawSpeed = 45f;
 
     NavigationExecutor() {
@@ -50,17 +51,35 @@ class NavigationExecutor implements Runnable {
         flightController.setRollPitchControlMode(RollPitchControlMode.VELOCITY);
         flightController.setRollPitchCoordinateSystem(FlightCoordinateSystem.BODY);
 
-        // Turn on Vision Assisted if it was off
+        // Turn on Vision Assisted if it was OFF
         flightAssistant.getVisionAssistedPositioningEnabled(new CommonCallbacks.CompletionCallbackWith<Boolean>() {
             @Override
             public void onSuccess(Boolean aBoolean) {
-                flightAssistant.setVisionAssistedPositioningEnabled(true, null);
+                if (!aBoolean) {
+                    flightAssistant.setVisionAssistedPositioningEnabled(true, null);
+                }
             }
 
             @Override
             public void onFailure(DJIError djiError) {
             }
         });
+
+        // Turn off Collision avoidance if it was ON
+        flightAssistant.getCollisionAvoidanceEnabled(new CommonCallbacks.CompletionCallbackWith<Boolean>() {
+            @Override
+            public void onSuccess(Boolean aBoolean) {
+                if (aBoolean) {
+                    flightAssistant.setCollisionAvoidanceEnabled(false, null);
+                }
+            }
+
+            @Override
+            public void onFailure(DJIError djiError) {
+
+            }
+        });
+
 
         String data;
         int command = 0;
@@ -95,24 +114,33 @@ class NavigationExecutor implements Runnable {
             } else if (getPattern("[c][o][r][n][e][r]", data)) {
                 commands.push(data.substring(6));
                 command = 12;
+            } else if (getPattern("[h][e][i][g][h][t]", data)) {
+                commands.push(data.substring(6));
+                command = 13;
+            } else if (getPattern("[l][a][n][d]", data)) {
+                command = 14;
             }
 
-            if (command <= 8) {
-                pushSpeedInFlightMoves(command, speed);
-                pushSecondsInFlightMoves(data, speed, command);
+            if (command != 11) {
+                if (command <= 8) {
+                    pushSpeedInFlightMoves(command, speed);
+                    pushSecondsInFlightMoves(data, speed, command);
+                }
+                pushFlightCodeInCommands(command);
+            } else if (command == 11) {
+                fetchScanIntoCommands(data);
             }
-            pushFlightCodeInCommands(command);
         }
+
+        Log.d("TestHelper", "Flight moves: " + flightMoves + " Commands: " + commands);
     }
 
     public void run() {
-        Log.d("TestHelper", "Commands: " + commands);
         runCommands();
     }
 
     private void runCommands() {
 
-//        Log.d("TestHelper", "Running command: " + commands.peek() + " commands array: " + commands);
         if (commands.empty()) {
             return;
         } else if (commands.peek().equals("flight")) {
@@ -121,17 +149,16 @@ class NavigationExecutor implements Runnable {
             takeOff();
         } else if (commands.peek().equals("align")) {
             align();
-        } else if (commands.peek().equals("scan")) {
-            scan();
         } else if (commands.peek().equals("corner")) {
             findCornerAndGetCloser();
+        } else if (commands.peek().equals("reachHeight")) {
+            reachHeight();
+        } else if (commands.peek().equals("land")) {
+            land();
         }
     }
 
     private void pushSpeedInFlightMoves(int direction, float speed) {
-        float yawSpeed = 45f;
-        float upDownSpeed = 0.5f;
-
         switch (direction) {
             case 1:
                 flightMoves.push(0f);
@@ -184,18 +211,18 @@ class NavigationExecutor implements Runnable {
         }
     }
 
-    private void pushSecondsInFlightMoves(String data, float speed, int command) {
+    private void pushSecondsInFlightMoves(String initialMoveName, float speed, int command) {
         float meters = 0;
         float millisec;
 
         if (command <= 8) {
             Pattern p = Pattern.compile("[0-9]*\\.?[0-9]+");
-            Matcher m = p.matcher(data);
+            Matcher m = p.matcher(initialMoveName);
             if (m.find()) {
                 meters = Float.parseFloat(m.group());
             } else {
                 p = Pattern.compile("\\d*");
-                m = p.matcher(data);
+                m = p.matcher(initialMoveName);
                 if (m.find()) {
                     meters = Float.parseFloat(m.group());
                 }
@@ -215,15 +242,66 @@ class NavigationExecutor implements Runnable {
 
     private void pushFlightCodeInCommands(int command) {
         if (command <= 8) {
+            Log.d("TestHelper", "Flight is working");
             commands.push("flight");
         } else if (command == 9) {
             commands.push("takeoff");
         } else if (command == 10) {
             commands.push("align");
-        } else if (command == 11) {
-            commands.push("scan");
         } else if (command == 12) {
             commands.push("corner");
+        } else if (command == 13) {
+            commands.push("reachHeight");
+        } else if (command == 14) {
+            commands.push("land");
+        }
+    }
+
+    private void fetchScanIntoCommands(String initialMoveName) {
+
+        float width = 0, initialHeight = 0, maxHeight = 0;
+        float step = 0.2f;
+        float speed = 0.3f;
+        String side = initialMoveName.substring(4, 5);
+        boolean isPositionLeft;
+
+        isPositionLeft = side.equals("L") ? true : false;
+
+        Pattern p = Pattern.compile("\\d+(\\.\\d+)?");
+        Matcher m = p.matcher(initialMoveName);
+
+        if (m.find()) {
+            width = Float.parseFloat(m.group(0));
+        }
+
+        if (m.find()) {
+            initialHeight = Float.parseFloat(m.group(0));
+        }
+
+        if (m.find()) {
+            maxHeight = Float.parseFloat(m.group(0));
+        }
+
+        while (initialHeight < maxHeight) {
+            // If we start from left side - push left command, otherwise - right
+            if (isPositionLeft) {
+                pushSpeedInFlightMoves(3, speed);
+                pushSecondsInFlightMoves(width + "", speed, 3);
+            } else {
+                pushSpeedInFlightMoves(4, speed);
+                pushSecondsInFlightMoves(width + "", speed, 4);
+            }
+            pushFlightCodeInCommands(3);
+
+            // Make 1 step up
+            pushSpeedInFlightMoves(7, speed);
+            pushSecondsInFlightMoves(step + "", speed, 7);
+            pushFlightCodeInCommands(3);
+
+            initialHeight += step;
+
+            isPositionLeft = !isPositionLeft;
+
         }
     }
 
@@ -262,11 +340,11 @@ class NavigationExecutor implements Runnable {
         // Take off action
         flightController.startTakeoff(null);
 
+
         // Small step forward after takeoff in order to align drone
-        new CountDownTimer(5000, 3000) {
+        new CountDownTimer(5000, 5000) {
             @Override
             public void onTick(long l) {
-                flightController.sendVirtualStickFlightControlData(new FlightControlData(0, 1, 0, 0), null);
             }
 
             @Override
@@ -276,7 +354,21 @@ class NavigationExecutor implements Runnable {
         }.start();
     }
 
+    private void land() {
+        // Pop one element from stack
+        commands.pop();
+
+        // Land and on result give control back to Executor
+        flightController.startLanding(new CommonCallbacks.CompletionCallback() {
+            @Override
+            public void onResult(DJIError djiError) {
+                new Handler(Looper.getMainLooper()).post(new NavigationExecutor());
+            }
+        });
+    }
+
     private void align() {
+        Log.d("TestHelper", "Align works");
         // Pop value to delete it from stack
         commands.pop();
 
@@ -304,9 +396,9 @@ class NavigationExecutor implements Runnable {
                 // Yaw right or left if difference is too big or give control back to main function
                 if (difference > err) {
                     if (sen1 > sen2) {
-                        flightController.sendVirtualStickFlightControlData(new FlightControlData(0, 0, 3, 0), null);
+                        flightController.sendVirtualStickFlightControlData(new FlightControlData(0, 0, 5, 0), null);
                     } else {
-                        flightController.sendVirtualStickFlightControlData(new FlightControlData(0, 0, -3, 0), null);
+                        flightController.sendVirtualStickFlightControlData(new FlightControlData(0, 0, -5, 0), null);
                     }
                 } else {
                     flightController.sendVirtualStickFlightControlData(new FlightControlData(0, 0, 0, 0), null);
@@ -315,27 +407,24 @@ class NavigationExecutor implements Runnable {
                         public void onUpdate(@NonNull VisionDetectionState visionDetectionState) {
                         }
                     });
+                    Log.d("TestHelper", "Align stop working");
                     new Handler(Looper.getMainLooper()).post(new NavigationExecutor());
                 }
             }
         });
     }
 
-    private void scan() {
-
-    }
-
     private void findCornerAndGetCloser() {
         commands.pop();
 
-        final int error = 50;
+        final int error = 30;
         final float speed;
         final String side = commands.pop();
 
         if (side.equals("L")) {
-            speed = -1f;
+            speed = -0.1f;
         } else {
-            speed = 1f;
+            speed = 0.1f;
         }
 
         flightAssistant.setVisionDetectionStateUpdatedCallback(new VisionDetectionState.Callback() {
@@ -343,14 +432,14 @@ class NavigationExecutor implements Runnable {
             public void onUpdate(@NonNull VisionDetectionState visionDetectionState) {
                 ObstacleDetectionSector[] od = visionDetectionState.getDetectionSectors();
 
-                final float sen1 = od[0].getObstacleDistanceInMeters();
-                final float sen2 = od[3].getObstacleDistanceInMeters();
+                float sen1 = od[0].getObstacleDistanceInMeters();
+                float sen2 = od[3].getObstacleDistanceInMeters();
                 int difference;
 
                 if (side.equals("L")) {
-                    difference = (int) (sen1 / sen2 * 100 - 100);
+                    difference = Math.abs((int) (sen1 / sen2 * 100 - 100));
                 } else {
-                    difference = (int) (sen2 / sen1 * 100 - 100);
+                    difference = Math.abs((int) (sen2 / sen1 * 100 - 100));
                 }
 
                 if (difference < error) {
@@ -376,8 +465,8 @@ class NavigationExecutor implements Runnable {
                                 sen3 = od[2].getObstacleDistanceInMeters();
                             }
 
-                            if (sen1 > 0.7f || sen2 > 0.7f || sen3 > 0.7f) {
-                                flightController.sendVirtualStickFlightControlData(new FlightControlData(0, 0.3f, 0, 0), null);
+                            if (sen1 > 1f || sen2 > 1f || sen3 > 1f) {
+                                flightController.sendVirtualStickFlightControlData(new FlightControlData(0, 0.15f, 0, 0), null);
                             } else {
                                 flightController.sendVirtualStickFlightControlData(new FlightControlData(0, 0, 0, 0), null);
                                 flightAssistant.setVisionDetectionStateUpdatedCallback(new VisionDetectionState.Callback() {
@@ -389,22 +478,45 @@ class NavigationExecutor implements Runnable {
                             }
                         }
                     });
-//                    new Handler(Looper.getMainLooper()).post(new NavigationExecutor());
                 }
             }
         });
     }
 
-    private void approachRack() {
+    private void reachHeight() {
+        commands.pop();
 
+        final float desireHeight = Float.parseFloat(commands.pop());
+
+        Log.d("TestHelper", "reachHeight: " + desireHeight);
+
+        flightController.setStateCallback(new FlightControllerState.Callback() {
+            @Override
+            public void onUpdate(@NonNull FlightControllerState flightControllerState) {
+                float realHeight = flightControllerState.getUltrasonicHeightInMeters();
+                if (realHeight < desireHeight) {
+                    flightController.sendVirtualStickFlightControlData(new FlightControlData(0, 0, 0, upDownSpeed), null);
+                } else if (realHeight > desireHeight) {
+                    flightController.sendVirtualStickFlightControlData(new FlightControlData(0, 0, 0, -upDownSpeed), null);
+                } else {
+                    flightController.setStateCallback(new FlightControllerState.Callback() {
+                        @Override
+                        public void onUpdate(@NonNull FlightControllerState flightControllerState) {
+                        }
+                    });
+                    new Handler(Looper.getMainLooper()).post(new NavigationExecutor());
+                }
+            }
+        });
     }
-
-    // 0.3left10height5width0.5stepheight
 
     private boolean getPattern(String pattern, String where) {
         Pattern p = Pattern.compile(pattern);
         Matcher matcher = p.matcher(where);
-        return matcher.find();
+        if (matcher.find()) {
+            return true;
+        }
+        return false;
     }
 
 
