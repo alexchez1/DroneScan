@@ -140,7 +140,7 @@ class NavigationExecutor implements Runnable {
                 Log.d("TestHelper", "Exception: " + e);
             }
         }
-        Log.d("TestHelper", "Commands: " + commands + "\nFlight moves: " + flightMoves);
+        Log.d("TestHelper", "Flight moves: " + flightMoves);
     }
 
     public void run() {
@@ -280,11 +280,11 @@ class NavigationExecutor implements Runnable {
         float width = 0, initialHeight = 0, maxHeight = 0;
         float step = 0.2f;
         float speed = 0.3f;
+        int counter;
         String side = initialMoveName.substring(4, 5);
-        boolean isPositionLeft;
+        boolean isMoveRight;
 
-        isPositionLeft = side.equals("L") ? true : false;
-
+        // Find width, initialHeight and maxHeight
         Pattern p = Pattern.compile("\\d+(\\.\\d+)?");
         Matcher m = p.matcher(initialMoveName);
 
@@ -300,9 +300,12 @@ class NavigationExecutor implements Runnable {
             maxHeight = Float.parseFloat(m.group(0));
         }
 
-        while (initialHeight < maxHeight) {
-            // If we start from left side - push left command, otherwise - right
-            if (isPositionLeft) {
+        counter = (int) Math.ceil((maxHeight - initialHeight) / step) + 1;
+        isMoveRight = (side.equals("L") && counter % 2 != 0) || (side.equals("R") && counter % 2 == 0)? true : false;
+
+        for (int i = 0; i < counter; i++) {
+            // Check if move right - push right movement into stack
+            if (isMoveRight) {
                 pushSpeedInFlightMoves(3, speed);
                 pushSecondsInFlightMoves(width + "", speed, 3);
             } else {
@@ -311,16 +314,20 @@ class NavigationExecutor implements Runnable {
             }
             pushFlightCodeInCommands(3);
 
-            // Make 1 step up
-            pushSpeedInFlightMoves(7, speed);
-            pushSecondsInFlightMoves(step + "", speed, 7);
-            pushFlightCodeInCommands(3);
+            if (i < counter - 1) {
+                // Make 1 step up
+                pushSpeedInFlightMoves(7, speed);
+                pushSecondsInFlightMoves(step + "", speed, 7);
+                pushFlightCodeInCommands(3);
+            }
 
-            initialHeight += step;
-
-            isPositionLeft = !isPositionLeft;
-
+            // Change direction
+            isMoveRight = !isMoveRight;
         }
+
+//        Log.d("TestHelper", "Side L: " + side.equals("L") + " Counter even: " + (counter % 2 == 0));
+//        Log.d("TestHelper", "Side: " + side + " counter: " + counter + " First move right: " + isMoveRight);
+
     }
 
     private void flight() {

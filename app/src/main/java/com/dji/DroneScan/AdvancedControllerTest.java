@@ -4,9 +4,9 @@ import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
@@ -16,7 +16,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.text.DecimalFormat;
-import java.util.List;
 
 import dji.common.error.DJIError;
 import dji.common.flightcontroller.FlightControllerState;
@@ -28,7 +27,6 @@ import dji.common.flightcontroller.virtualstick.RollPitchControlMode;
 import dji.common.flightcontroller.virtualstick.VerticalControlMode;
 import dji.common.flightcontroller.virtualstick.YawControlMode;
 import dji.common.util.CommonCallbacks;
-import dji.sdk.base.DJIDiagnostics;
 import dji.sdk.flightcontroller.FlightAssistant;
 import dji.sdk.flightcontroller.FlightController;
 import dji.sdk.products.Aircraft;
@@ -52,15 +50,16 @@ public class AdvancedControllerTest extends AppCompatActivity {
         flightController = aircraft.getFlightController();
         flightAssistant = flightController.getFlightAssistant();
 
-        handHeld.setDiagnosticsInformationCallback(new DJIDiagnostics.DiagnosticsInformationCallback() {
-            @Override
-            public void onUpdate(List<DJIDiagnostics> list) {
-                for (int i = 0; i < list.size(); i++) {
-                    Log.d("TestHelper", "Error: " + list.get(i).getReason() + "\n Solution: " + list.get(i).getSolution());
-                }
-                list.clear();
-            }
-        });
+        // DJI Diagnostic callback. Use to get problems
+//        handHeld.setDiagnosticsInformationCallback(new DJIDiagnostics.DiagnosticsInformationCallback() {
+//            @Override
+//            public void onUpdate(List<DJIDiagnostics> list) {
+//                for (int i = 0; i < list.size(); i++) {
+//                    Log.d("TestHelper", "Error: " + list.get(i).getReason() + "\n Solution: " + list.get(i).getSolution());
+//                }
+//                list.clear();
+//            }
+//        });
 
         // Set advanced Mode enabled
         flightController.setVirtualStickModeEnabled(true, null);
@@ -361,9 +360,10 @@ public class AdvancedControllerTest extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                String[] arr = new String[]{"takeoff", "cornerCloserL", "1right", "height1", "scanL2width1initialHeight1.6maxHeight", "height1", "cornerBackL"};
-//                new Handler(Looper.getMainLooper()).post(new NavigationExecutor(arr, 1f));
-                new NavigationExecutor(arr, 1f);
+                String[] arr = new String[]{"takeoff", "1right", "height1", "scanL2width1initialHeight1.7maxHeight"};
+                new Handler(Looper.getMainLooper()).post(new NavigationExecutor(arr, 1f));
+                // "scanL2width1initialHeight1.7maxHeight", "scanR2width1initialHeight1.7maxHeight", "scanL2width1initialHeight1.6maxHeight"
+//                new NavigationExecutor(arr, 1f);
 
             }
         });
