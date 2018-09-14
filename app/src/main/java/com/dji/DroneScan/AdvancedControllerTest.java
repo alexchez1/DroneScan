@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
-import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -362,10 +361,9 @@ public class AdvancedControllerTest extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                String[] arr = new String[]{"takeoff", "1forward", "align", "cornerL", "1right", "height1", "scanL2width1initialHeight1.6maxHeight"};
-                //"scanL1width2initialHeight2.5maxHeight"
-                new Handler(Looper.getMainLooper()).post(new NavigationExecutor(arr, 1f));
-//                new NavigationExecutor(arr, 1f);
+                String[] arr = new String[]{"takeoff", "cornerCloserL", "1right", "height1", "scanL2width1initialHeight1.6maxHeight", "height1", "cornerBackL"};
+//                new Handler(Looper.getMainLooper()).post(new NavigationExecutor(arr, 1f));
+                new NavigationExecutor(arr, 1f);
 
             }
         });

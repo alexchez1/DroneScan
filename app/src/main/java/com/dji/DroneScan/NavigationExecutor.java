@@ -87,59 +87,74 @@ class NavigationExecutor implements Runnable {
         startStack.addAll(Arrays.asList(moves));
 
         while (!startStack.empty()) {
-            data = startStack.pop();
+            try {
+                data = startStack.pop();
 
-            if (getPattern("[f][o][r][w][a][r][d]", data)) {
-                command = 1;
-            } else if (getPattern("[b][a][c][k]", data)) {
-                command = 2;
-            } else if (getPattern("[r][i][g][h][t]", data)) {
-                command = 3;
-            } else if (getPattern("[l][e][f][t]", data)) {
-                command = 4;
-            } else if (getPattern("[y][a][w][R]", data)) {
-                command = 5;
-            } else if (getPattern("[y][a][w][L]", data)) {
-                command = 6;
-            } else if (getPattern("[u][p]", data)) {
-                command = 7;
-            } else if (getPattern("[d][o][w][n]", data)) {
-                command = 8;
-            } else if (getPattern("[t][a][k][e][o][f][f]", data)) {
-                command = 9;
-            } else if (getPattern("[a][l][i][g][n]", data)) {
-                command = 10;
-            } else if (getPattern("[s][c][a][n]", data)) {
-                command = 11;
-            } else if (getPattern("[c][o][r][n][e][r]", data)) {
-                commands.push(data.substring(6));
-                command = 12;
-            } else if (getPattern("[h][e][i][g][h][t]", data)) {
-                commands.push(data.substring(6));
-                command = 13;
-            } else if (getPattern("[l][a][n][d]", data)) {
-                command = 14;
-            }
+//                Log.d("TestHelper", "Data: " + data);
 
-            if (command != 11) {
-                if (command <= 8) {
-                    pushSpeedInFlightMoves(command, speed);
-                    pushSecondsInFlightMoves(data, speed, command);
+                if (getPattern("[f][o][r][w][a][r][d]", data)) {
+                    command = 1;
+                } else if (getPattern("[b][a][c][k]", data)) {
+                    command = 2;
+                } else if (getPattern("[r][i][g][h][t]", data)) {
+                    command = 3;
+                } else if (getPattern("[l][e][f][t]", data)) {
+                    command = 4;
+                } else if (getPattern("[y][a][w][R]", data)) {
+                    command = 5;
+                } else if (getPattern("[y][a][w][L]", data)) {
+                    command = 6;
+                } else if (getPattern("[u][p]", data)) {
+                    command = 7;
+                } else if (getPattern("[d][o][w][n]", data)) {
+                    command = 8;
+                } else if (getPattern("[t][a][k][e][o][f][f]", data)) {
+                    command = 9;
+                } else if (getPattern("[a][l][i][g][n]", data)) {
+                    command = 10;
+                } else if (getPattern("[s][c][a][n]", data)) {
+                    command = 11;
+                } else if (getPattern("[c][o][r][n][e][r][C][l][o][s][e][r]", data)) {
+                    commands.push(data.substring(12));
+                    command = 12;
+                } else if (getPattern("[h][e][i][g][h][t]", data)) {
+                    commands.push(data.substring(6));
+                    command = 13;
+                } else if (getPattern("[l][a][n][d]", data)) {
+                    command = 14;
+                } else if (getPattern("[c][o][r][n][e][r][B][a][c][k]", data)) {
+                    commands.push(data.substring(10));
+                    command = 15;
                 }
-                pushFlightCodeInCommands(command);
-            } else if (command == 11) {
-                fetchScanIntoCommands(data);
+
+                if (command != 11) {
+                    if (command <= 8) {
+                        pushSpeedInFlightMoves(command, speed);
+                        pushSecondsInFlightMoves(data, speed, command);
+                    }
+                    pushFlightCodeInCommands(command);
+                } else if (command == 11) {
+                    fetchScanIntoCommands(data);
+                }
+            } catch (Exception e) {
+                Log.d("TestHelper", "Exception: " + e);
             }
         }
-
-        Log.d("TestHelper", "Flight moves: " + flightMoves + " Commands: " + commands);
+        Log.d("TestHelper", "Commands: " + commands + "\nFlight moves: " + flightMoves);
     }
 
     public void run() {
-        runCommands();
+        try {
+            runCommands();
+        } catch (Exception e) {
+            Log.d("TestHelper", "Run command exception: " + e);
+        }
+
     }
 
     private void runCommands() {
+
+//        Log.d("TestHelper", "Current running command: " + commands.peek());
 
         if (commands.empty()) {
             return;
@@ -149,8 +164,10 @@ class NavigationExecutor implements Runnable {
             takeOff();
         } else if (commands.peek().equals("align")) {
             align();
-        } else if (commands.peek().equals("corner")) {
+        } else if (commands.peek().equals("cornerCloser")) {
             findCornerAndGetCloser();
+        } else if (commands.peek().equals("cornerBack")) {
+            findCornerAndGetBack();
         } else if (commands.peek().equals("reachHeight")) {
             reachHeight();
         } else if (commands.peek().equals("land")) {
@@ -242,18 +259,19 @@ class NavigationExecutor implements Runnable {
 
     private void pushFlightCodeInCommands(int command) {
         if (command <= 8) {
-            Log.d("TestHelper", "Flight is working");
             commands.push("flight");
         } else if (command == 9) {
             commands.push("takeoff");
         } else if (command == 10) {
             commands.push("align");
         } else if (command == 12) {
-            commands.push("corner");
+            commands.push("cornerCloser");
         } else if (command == 13) {
             commands.push("reachHeight");
         } else if (command == 14) {
             commands.push("land");
+        } else if (command == 15) {
+            commands.push("cornerBack");
         }
     }
 
@@ -342,7 +360,7 @@ class NavigationExecutor implements Runnable {
 
 
         // Small step forward after takeoff in order to align drone
-        new CountDownTimer(5000, 5000) {
+        new CountDownTimer(6000, 6000) {
             @Override
             public void onTick(long l) {
             }
@@ -483,17 +501,98 @@ class NavigationExecutor implements Runnable {
         });
     }
 
-    private void reachHeight() {
+    private void findCornerAndGetBack() {
+        // Pop redundant command from array
         commands.pop();
 
+        // Set variables
+        final int error = 30;
+        /* Error shows what the difference between sensors
+         we are looking for when searching a corner (e.g. 1 sensor can show 2 metres and
+         we are looking when another one will show 2.6 to understand that we have found a corner) */
+        final float speed;
+        final String side = commands.pop();
+
+        // Depends of from what side we are looking for corner using different direction
+        if (side.equals("L")) {
+            speed = -0.1f;
+        } else {
+            speed = 0.1f;
+        }
+
+        // Enable front sensors of the drone and start collect information
+        flightAssistant.setVisionDetectionStateUpdatedCallback(new VisionDetectionState.Callback() {
+            @Override
+            public void onUpdate(@NonNull VisionDetectionState visionDetectionState) {
+                ObstacleDetectionSector[] od = visionDetectionState.getDetectionSectors();
+
+                // Use only 2 sensors out of 4 (the last and the first)
+                float sen1 = od[0].getObstacleDistanceInMeters();
+                float sen2 = od[3].getObstacleDistanceInMeters();
+                int difference;
+
+                if (side.equals("L")) {
+                    difference = Math.abs((int) (sen1 / sen2 * 100 - 100));
+                } else {
+                    difference = Math.abs((int) (sen2 / sen1 * 100 - 100));
+                }
+
+                if (difference < error) {
+                    flightController.sendVirtualStickFlightControlData(new FlightControlData(speed, 0, 0, 0), null);
+                } else {
+                    flightController.sendVirtualStickFlightControlData(new FlightControlData(0, 0, 0, 0), null);
+                    flightAssistant.setVisionDetectionStateUpdatedCallback(new VisionDetectionState.Callback() {
+                        @Override
+                        public void onUpdate(@NonNull VisionDetectionState visionDetectionState) {
+                            ObstacleDetectionSector[] od = visionDetectionState.getDetectionSectors();
+
+                            float sen1;
+                            float sen2;
+                            float sen3;
+
+                            if (side.equals("L")) {
+                                sen1 = od[1].getObstacleDistanceInMeters();
+                                sen2 = od[2].getObstacleDistanceInMeters();
+                                sen3 = od[3].getObstacleDistanceInMeters();
+                            } else {
+                                sen1 = od[0].getObstacleDistanceInMeters();
+                                sen2 = od[1].getObstacleDistanceInMeters();
+                                sen3 = od[2].getObstacleDistanceInMeters();
+                            }
+
+                            if (sen1 < 2.5f || sen2 < 2.5f || sen3 < 2.5f) {
+                                flightController.sendVirtualStickFlightControlData(new FlightControlData(0, -0.15f, 0, 0), null);
+                            } else {
+                                flightController.sendVirtualStickFlightControlData(new FlightControlData(0, 0, 0, 0), null);
+                                flightAssistant.setVisionDetectionStateUpdatedCallback(new VisionDetectionState.Callback() {
+                                    @Override
+                                    public void onUpdate(@NonNull VisionDetectionState visionDetectionState) {
+                                    }
+                                });
+                                new Handler(Looper.getMainLooper()).post(new NavigationExecutor());
+                            }
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    private void reachHeight() {
+        // Pop redundant command from array
+        commands.pop();
+
+        // Get desirable height from array
         final float desireHeight = Float.parseFloat(commands.pop());
 
-        Log.d("TestHelper", "reachHeight: " + desireHeight);
-
+        // Get sensor, which show current heigh
         flightController.setStateCallback(new FlightControllerState.Callback() {
             @Override
             public void onUpdate(@NonNull FlightControllerState flightControllerState) {
+                // Get current height from the sensor
                 float realHeight = flightControllerState.getUltrasonicHeightInMeters();
+
+                // If current height is less or more, than desirable go up/down
                 if (realHeight < desireHeight) {
                     flightController.sendVirtualStickFlightControlData(new FlightControlData(0, 0, 0, upDownSpeed), null);
                 } else if (realHeight > desireHeight) {
@@ -504,6 +603,7 @@ class NavigationExecutor implements Runnable {
                         public void onUpdate(@NonNull FlightControllerState flightControllerState) {
                         }
                     });
+                    // After height is the same as desirable - give control to main function
                     new Handler(Looper.getMainLooper()).post(new NavigationExecutor());
                 }
             }
