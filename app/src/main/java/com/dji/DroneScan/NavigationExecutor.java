@@ -367,7 +367,7 @@ class NavigationExecutor implements Runnable {
 
 
         // Small step forward after takeoff in order to align drone
-        new CountDownTimer(6000, 6000) {
+        new CountDownTimer(5000, 5000) {
             @Override
             public void onTick(long l) {
             }
@@ -490,7 +490,7 @@ class NavigationExecutor implements Runnable {
                                 sen3 = od[2].getObstacleDistanceInMeters();
                             }
 
-                            if (sen1 > 1f || sen2 > 1f || sen3 > 1f) {
+                            if (sen1 > 1.5f || sen2 > 1.5f || sen3 > 1.5f) {
                                 flightController.sendVirtualStickFlightControlData(new FlightControlData(0, 0.15f, 0, 0), null);
                             } else {
                                 flightController.sendVirtualStickFlightControlData(new FlightControlData(0, 0, 0, 0), null);
@@ -567,7 +567,7 @@ class NavigationExecutor implements Runnable {
                                 sen3 = od[2].getObstacleDistanceInMeters();
                             }
 
-                            if (sen1 < 2.5f || sen2 < 2.5f || sen3 < 2.5f) {
+                            if (sen1 < 2 || sen2 < 2 || sen3 < 2) {
                                 flightController.sendVirtualStickFlightControlData(new FlightControlData(0, -0.15f, 0, 0), null);
                             } else {
                                 flightController.sendVirtualStickFlightControlData(new FlightControlData(0, 0, 0, 0), null);

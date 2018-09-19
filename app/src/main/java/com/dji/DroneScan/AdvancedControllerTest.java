@@ -360,8 +360,8 @@ public class AdvancedControllerTest extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                String[] arr = new String[]{"takeoff", "1right", "height1", "scanL2width1initialHeight1.7maxHeight"};
-                new Handler(Looper.getMainLooper()).post(new NavigationExecutor(arr, 1f));
+                String[] arr = new String[]{"takeoff", "height1.6", "90yawR", "4forward", "90yawL", "7forward", "90yawL", "2.5forward", "align", "cornerCloserL", "height1", "0.5right", "scanL1.5width1initialHeight1.6maxHeight", "height1", "cornerBackL", "land"};
+                new Handler(Looper.getMainLooper()).post(new NavigationExecutor(arr, 0.5f));
                 // "scanL2width1initialHeight1.7maxHeight", "scanR2width1initialHeight1.7maxHeight", "scanL2width1initialHeight1.6maxHeight"
 //                new NavigationExecutor(arr, 1f);
 
