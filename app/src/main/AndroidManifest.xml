@@ -70,7 +70,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".AdvancedControllerTest" android:screenOrientation="landscape"></activity>
+        <activity
+            android:name=".AdvancedControllerTest"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".PathCreation"
+            android:label="@string/title_activity_path_creation"
+            android:theme="@style/AppTheme"
+            android:screenOrientation="landscape"></activity>
     </application>
 
 </manifest>

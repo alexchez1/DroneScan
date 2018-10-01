@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String FLAG_CONNECTION_CHANGE = "dji_sdk_connection_change";
     private static BaseProduct mProduct;
     private Handler mHandler;
-    private Button btnAdvanced;
+    private Button btnAdvanced, buttonMove;
     private TextView droneName;
     private String droneModelName;
 
@@ -73,10 +73,18 @@ public class MainActivity extends AppCompatActivity {
         // Find elements of the layout
         droneName = findViewById(R.id.droneName);
         btnAdvanced = findViewById(R.id.btnAdvanced);
+        buttonMove = findViewById(R.id.buttonMove);
 
         //Initialize DJI SDK Manager
         mHandler = new Handler(Looper.getMainLooper());
 
+        buttonMove.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent startIntent = new Intent(getApplicationContext(), PathCreation.class);
+                startActivity(startIntent);
+            }
+        });
 
         btnAdvanced.setEnabled(false);
         btnAdvanced.setOnClickListener(new View.OnClickListener() {
