@@ -10,7 +10,7 @@
 
     <LinearLayout
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_weight="77"
         android:orientation="vertical">
 
@@ -23,25 +23,25 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.3125" />
+                app:layout_constraintGuide_percent="0.3247" />
 
             <TextView
                 android:id="@+id/directionText"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:paddingStart="15dp"
+                android:layout_height="wrap_content"
                 android:paddingTop="12dp"
+                android:paddingLeft="15dp"
                 android:text="10m forward"
                 android:textColor="#383838"
                 android:textSize="14sp"
                 android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"/>
 
             <TextView
                 android:id="@+id/actionText"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="0dp"
                 android:layout_marginTop="12dp"
                 android:text="Scan"
@@ -62,26 +62,26 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.3125" />
+                app:layout_constraintGuide_percent="0.3247" />
 
             <android.support.constraint.Guideline
                 android:id="@+id/guideline3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.6125" />
+                app:layout_constraintGuide_percent="0.6325" />
 
             <android.support.constraint.Guideline
                 android:id="@+id/guideline4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.7875" />
+                app:layout_constraintGuide_percent="0.8175" />
 
             <TextView
                 android:id="@+id/iniHeightText"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:paddingBottom="15dp"
                 android:paddingLeft="15dp"
                 android:textColor="#383838"
@@ -93,7 +93,7 @@
             <TextView
                 android:id="@+id/maxHeightText"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:textColor="#383838"
                 android:textSize="10sp"
                 app:layout_constraintStart_toStartOf="@+id/guideline2"
@@ -103,7 +103,7 @@
             <TextView
                 android:id="@+id/widthText"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:textColor="#383838"
                 android:textSize="10sp"
                 app:layout_constraintStart_toStartOf="@+id/guideline3"
@@ -113,7 +113,7 @@
             <TextView
                 android:id="@+id/marginText"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:textColor="#383838"
                 android:textSize="10sp"
                 app:layout_constraintStart_toStartOf="@+id/guideline4"

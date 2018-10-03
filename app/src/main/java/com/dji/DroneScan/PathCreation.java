@@ -6,22 +6,23 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class PathCreation extends AppCompatActivity {
+public class PathCreation extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
-    static JSONObject json;
+    JSONObject json;
     ItemAdapter itemAdapter;
+    View alertView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_path_creation);
-
-//        PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().remove("FlyingJSON").apply();
 
         // TODO: Put this part off code into the MainActivity
 
@@ -40,27 +41,14 @@ public class PathCreation extends AppCompatActivity {
             Log.d("TestJson", "" + e);
         }
 
-        Log.d("TestJson", "json" + json);
-
         ListView mListView = findViewById(R.id.mListView);
 
-        // TODO: Add creation of new move
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                try {
-                    JSONObject testobj = new JSONObject();
-                    testobj.put("name", "Fly");
-                    testobj.put("direction", "back");
-                    testobj.put("metOrDeg", "4");
-                    json.getJSONArray("actions").put(testobj);
-                    saveJSONChanges(json);
-                } catch (JSONException e) {
-                    Log.d("TestJson", "" + e);
-                }
-
-                Log.d("TestJson", "json" + json);
+                EditDialogCreator dialogCreator = new EditDialogCreator(PathCreation.this, json, itemAdapter, true);
+                dialogCreator.createDialog();
             }
         });
 
@@ -68,12 +56,23 @@ public class PathCreation extends AppCompatActivity {
         mListView.setAdapter(itemAdapter);
     }
 
-    private void saveJSONChanges(JSONObject json) {
-        try {
-            PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putString("FlyingJSON", json.toString()).apply();
-            itemAdapter.notifyDataSetChanged();
-        } catch (Exception e) {
-            Log.d("TestJson", "" + e);
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int i, long l) {
+
+        LinearLayout metersSelector = alertView.findViewById(R.id.metersSelector);
+        LinearLayout degreesSelector = alertView.findViewById(R.id.degreesSelector);
+
+        if (i > 5) {
+            metersSelector.setVisibility(View.GONE);
+            degreesSelector.setVisibility(View.VISIBLE);
+        } else {
+            metersSelector.setVisibility(View.VISIBLE);
+            degreesSelector.setVisibility(View.GONE);
         }
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> adapterView) {
+
     }
 }

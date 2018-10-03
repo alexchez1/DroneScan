@@ -48,11 +48,11 @@ public class ItemAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(int i, View view, ViewGroup viewGroup) {
+    public View getView(final int i, View view, ViewGroup viewGroup) {
         View v = null;
         TextView directionText, actionText;
         TextView iniHeightText = null, maxHeightText = null, widthText = null, marginText = null;
-        ImageButton buttonDelete;
+        ImageButton buttonDelete, buttonEdit;
 
         try {
             // Get json object from actions
@@ -68,6 +68,9 @@ public class ItemAdapter extends BaseAdapter {
                 marginText = v.findViewById(R.id.marginText);
             }
 
+            // Initialise delete and edit buttons
+            buttonEdit = v.findViewById(R.id.buttonEdit);
+            buttonEdit.setTag(i);
             buttonDelete = v.findViewById(R.id.buttonDelete);
             buttonDelete.setTag(i);
 
@@ -81,7 +84,7 @@ public class ItemAdapter extends BaseAdapter {
                     int pos = (int) view.getTag();
                     try {
                         json.getJSONArray("actions").remove(pos);
-                        PreferenceManager.getDefaultSharedPreferences(view.getContext()).edit().putString(json.toString(), null).apply();
+                        PreferenceManager.getDefaultSharedPreferences(view.getContext()).edit().putString("FlyingJSON", json.toString()).apply();
                         ItemAdapter.this.notifyDataSetChanged();
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -89,11 +92,20 @@ public class ItemAdapter extends BaseAdapter {
                 }
             });
 
+            buttonEdit.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    int pos = (int) view.getTag();
+                    EditDialogCreator dialogCreator = new EditDialogCreator(view.getContext(), json, ItemAdapter.this, false, pos);
+                    dialogCreator.createDialog();
+                }
+            });
+
             // Set name in the 2nd column
             actionText.setText(jsonObj.getString("name"));
 
             // Check if action is fly it should be in different color and with different UI
-            if(jsonObj.get("name").equals("Fly")) {
+            if (jsonObj.get("name").equals("Fly")) {
                 // Check if first letter Y, for yaw have degrees symbol
                 if (jsonObj.getString("direction").indexOf('y') == 0) {
                     directionText.setText(jsonObj.getString("metOrDeg") + "º " + jsonObj.getString("direction"));
@@ -102,7 +114,8 @@ public class ItemAdapter extends BaseAdapter {
                 }
             } else {
                 // Layout if action is scan
-                directionText.setText(jsonObj.get("side") + " side");
+                String side = jsonObj.get("side").toString().substring(0, 1).toUpperCase() + jsonObj.get("side").toString().substring(1);
+                directionText.setText(side + " side");
                 iniHeightText.setText("Initial height: " + jsonObj.getString("iniHeight") + "m");
                 maxHeightText.setText("Maximum height: " + jsonObj.getString("maxHeight") + "m");
                 widthText.setText("Width: " + jsonObj.getString("width") + "m");
