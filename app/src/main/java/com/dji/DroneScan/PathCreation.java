@@ -54,6 +54,17 @@ public class PathCreation extends AppCompatActivity implements AdapterView.OnIte
 
         itemAdapter = new ItemAdapter(this, json);
         mListView.setAdapter(itemAdapter);
+//
+//        JSONHandler jsonHandler = new JSONHandler(this);
+//        String arr = "";
+//        for (int i = 0; i < jsonHandler.getMovementsArr().length; i++) {
+//            if (i == 0) {
+//                arr += jsonHandler.getMovementsArr()[i];
+//            } else {
+//                arr += ", " + jsonHandler.getMovementsArr()[i];
+//            }
+//        }
+//        Log.d("TestJson", arr);
     }
 
     @Override

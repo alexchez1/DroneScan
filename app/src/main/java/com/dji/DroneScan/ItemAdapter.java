@@ -55,7 +55,7 @@ public class ItemAdapter extends BaseAdapter {
         ImageButton buttonDelete, buttonEdit;
 
         try {
-            // Get json object from actions
+            // Get jsonActions object from actions
             JSONObject jsonObj = json.getJSONArray("actions").getJSONObject(i);
 
             if (jsonObj.get("name").equals("Fly")) {
